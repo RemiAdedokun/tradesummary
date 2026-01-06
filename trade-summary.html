@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FX Trade Summary</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        padding: 20px;
+        max-width: 800px;
+      }
+      .container {
+        margin: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      h2,
+      h3 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .tab {
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #e9edf3;
+        font-weight: bold;
+      }
+      .tab.active {
+        background: #0b5ed7;
+        color: #fff;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+        padding: 20px;
+      }
+      label {
+        font-size: 13px;
+        color: #555;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      input[readonly] {
+        background: #f3f3f3;
+      }
+      .summary {
+        background: #f0f3f7;
+        padding: 15px;
+        border-radius: 6px;
+        white-space: pre-line;
+        font-size: 14px;
+      }
+      button {
+        padding: 8px 14px;
+        background: #0b5ed7;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      button.secondary {
+        background: #6c757d;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>FX Trade Summary</h2>
+
+      <!-- BUY / SELL TABS -->
+      <div class="tabs">
+        <div class="tab active" data-type="SELL">SELL USD</div>
+        <div class="tab" data-type="BUY">BUY USD</div>
+      </div>
+
+      <!-- TRADE DETAILS -->
+      <div class="grid">
+        <div>
+          <label>FCY Amount (USD)</label>
+          <input type="number" id="fcy" value="900000" />
+        </div>
+
+        <div>
+          <label>Rate</label>
+          <input type="number" id="rate" value="1477" />
+        </div>
+
+        <div>
+          <label>USD Settlement</label>
+          <select id="usdSettle">
+            <option value="TOD">TOD</option>
+            <option value="TOM">TOM</option>
+            <option value="T2">T+2</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Settlement Date</label>
+          <input type="date" id="settleDate" />
+        </div>
+      </div>
+
+      <!-- ACCOUNT -->
+      <h3 id="accountTitle">NGN Receiving Account</h3>
+
+      <div class="grid">
+        <div>
+          <label>Select Account</label>
+          <select id="accountSelect"></select>
+        </div>
+      </div>
+
+      <button id="toggleAccountBtn" class="secondary">
+        Show Account Details
+      </button>
+      <div id="accountFields" class="grid hidden"></div>
+
+      <!-- SUMMARY -->
+      <h3>Trade Summary</h3>
+      <div id="summary" class="summary"></div>
+
+      <button onclick="copySummary()">Copy Summary</button>
+    </div>
+
+    <script>
+      let tradeType = "SELL";
+
+      const fcy = document.getElementById("fcy");
+      const rate = document.getElementById("rate");
+      const usdSettle = document.getElementById("usdSettle");
+      const settleDate = document.getElementById("settleDate");
+      const accountSelect = document.getElementById("accountSelect");
+      const accountFields = document.getElementById("accountFields");
+      const accountTitle = document.getElementById("accountTitle");
+      const summary = document.getElementById("summary");
+      const toggleAccountBtn = document.getElementById("toggleAccountBtn");
+
+      const accounts = {
+        SELL: {
+          title: "NGN Account Details",
+          list: {
+            CEDE_ZENITH: {
+              "Account Name": "Cede Technologies Limited",
+              "Account Number": "1313149930",
+              Bank: "Zenith Bank",
+            },
+            CEDE_PROVIDUS: {
+              "Account Name": "Cede Technologies Limited",
+              "Account Number": "9616773885",
+              Bank: "Providus Bank",
+            },
+          },
+        },
+        BUY: {
+          title: "USD Settlement Account",
+          list: {
+            CEDE_IFX: {
+              "Beneficiary Name": "Cede Technologies Inc",
+              Bank: "IFX Payments",
+              "Account Number": "67146817",
+              "Sort Code": "23-22-90",
+              IBAN: "GB77IFXS23229067146817",
+              "SWIFT/BIC": "IFXSGB2L",
+              Currency: "USD",
+              "Bank Address":
+                "33 Cavendish Square, London, W1G 0PW, United Kingdom",
+            },
+          },
+        },
+      };
+
+      function formatNumber(num) {
+        return num.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+      }
+
+      function setDefaultDate() {
+        const d = new Date();
+        if (usdSettle.value === "TOM") d.setDate(d.getDate() + 1);
+        if (usdSettle.value === "T2") d.setDate(d.getDate() + 2);
+        settleDate.value = d.toISOString().split("T")[0];
+      }
+
+      function loadAccounts() {
+        const config = accounts[tradeType];
+        accountTitle.textContent = config.title;
+        accountSelect.innerHTML = "";
+        accountFields.innerHTML = "";
+        accountFields.classList.add("hidden");
+        toggleAccountBtn.textContent = "Show Account Details";
+
+        Object.keys(config.list).forEach((key, index) => {
+          const opt = document.createElement("option");
+          opt.value = key;
+          opt.textContent = key.replaceAll("_", " ");
+          accountSelect.appendChild(opt);
+          if (index === 0) accountSelect.value = key;
+        });
+
+        renderAccountFields();
+      }
+
+      function renderAccountFields() {
+        accountFields.innerHTML = "";
+        const selected = accounts[tradeType].list[accountSelect.value];
+        if (!selected) return;
+
+        Object.entries(selected).forEach(([label, value]) => {
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <label>${label}</label>
+            <input type="text" value="${value}" readonly />
+          `;
+          accountFields.appendChild(div);
+        });
+
+        updateSummary();
+      }
+
+      function updateSummary() {
+        const fcyVal = Number(fcy.value || 0);
+        const rateVal = Number(rate.value || 0);
+        const lcy = fcyVal * rateVal;
+
+        const isBuy = tradeType === "BUY";
+        const fcyLabel = isBuy ? "FCY Bought" : "FCY Sold";
+        const lcyLabel = isBuy ? "LCY Sold" : "LCY Bought";
+
+        const selected = accounts[tradeType].list[accountSelect.value];
+
+        const accountText = selected
+          ? Object.entries(selected)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join("\n")
+          : "";
+
+        summary.textContent = `${accounts[tradeType].title};
+${accountText}
+
+*Trade Summary*
+${fcyLabel}: $${fcyVal.toLocaleString()}
+Rate: ${rateVal.toLocaleString()}
+${lcyLabel}: NGN${formatNumber(lcy)}
+Settlement Date: ${new Date(settleDate.value).toDateString()}
+USD Settlement: ${usdSettle.options[usdSettle.selectedIndex].text}`;
+      }
+
+      function copySummary() {
+        navigator.clipboard.writeText(summary.textContent);
+        alert("Trade summary copied");
+      }
+
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          tradeType = tab.dataset.type;
+          loadAccounts();
+          setDefaultDate();
+          updateSummary();
+        });
+      });
+
+      toggleAccountBtn.addEventListener("click", () => {
+        accountFields.classList.toggle("hidden");
+        toggleAccountBtn.textContent = accountFields.classList.contains(
+          "hidden"
+        )
+          ? "Show Account Details"
+          : "Hide Account Details";
+      });
+
+      accountSelect.addEventListener("change", renderAccountFields);
+      usdSettle.addEventListener("change", () => {
+        setDefaultDate();
+        updateSummary();
+      });
+
+      document
+        .querySelectorAll("input")
+        .forEach((el) => el.addEventListener("input", updateSummary));
+
+      setDefaultDate();
+      loadAccounts();
+      updateSummary();
+    </script>
+  </body>
+</html>
