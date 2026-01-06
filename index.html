@@ -2,146 +2,240 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>FX Trade Summary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Professional FX Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --primary: #0052ff;
+        --primary-hover: #0045db;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --success: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        background: #f5f7fa;
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg);
+        color: var(--text-main);
+        line-height: 1.5;
         padding: 20px;
-        max-width: 800px;
       }
+
       .container {
-        margin: auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 40px auto;
+        background: var(--card);
+        padding: 32px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05),
+          0 8px 10px -6px rgba(0, 0, 0, 0.05);
       }
-      h2,
-      h3 {
-        color: #333;
-        margin-bottom: 10px;
+
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        text-align: center;
       }
+
       .tabs {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 12px;
+        margin-bottom: 24px;
       }
+
       .tab {
-        padding: 10px 20px;
-        border-radius: 6px;
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 14px;
         cursor: pointer;
-        background: #e9edf3;
-        font-weight: bold;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        color: var(--text-muted);
       }
+
       .tab.active {
-        background: #0b5ed7;
-        color: #fff;
+        background: var(--card);
+        color: var(--primary);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
-      .grid {
+
+      .input-group {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
         margin-bottom: 20px;
-        padding: 20px;
       }
+
+      @media (max-width: 480px) {
+        .input-group {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
       label {
-        font-size: 13px;
-        color: #555;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
+
       input,
       select {
-        width: 100%;
-        padding: 8px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        padding: 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        font-size: 15px;
+        color: var(--text-main);
+        transition: border-color 0.2s;
+        outline: none;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--primary);
       }
       input[readonly] {
-        background: #f3f3f3;
+        background-color: #f8fafc;
+        cursor: not-allowed;
       }
-      .summary {
-        background: #f0f3f7;
-        padding: 15px;
-        border-radius: 6px;
-        white-space: pre-line;
-        font-size: 14px;
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 32px 0 16px;
       }
-      button {
-        padding: 8px 14px;
-        background: #0b5ed7;
-        color: #fff;
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      #toggleAccountBtn {
+        font-size: 12px;
+        color: var(--primary);
+        background: none;
         border: none;
-        border-radius: 4px;
         cursor: pointer;
-        font-size: 13px;
+        font-weight: 600;
       }
-      button.secondary {
-        background: #6c757d;
+
+      .summary-card {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 10px;
+      }
+      .summary-content {
+        white-space: pre-line;
+        font-size: 13px;
+        font-family: "Courier New", Courier, monospace;
+        color: #334155;
+        line-height: 1.6;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 16px;
+        transition: all 0.2s;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
       }
       .hidden {
         display: none;
       }
     </style>
   </head>
-
   <body>
     <div class="container">
       <h2>FX Trade Summary</h2>
 
-      <!-- BUY / SELL TABS -->
       <div class="tabs">
         <div class="tab active" data-type="SELL">SELL USD</div>
         <div class="tab" data-type="BUY">BUY USD</div>
       </div>
 
-      <!-- TRADE DETAILS -->
-      <div class="grid">
-        <div>
-          <label>FCY Amount (USD)</label>
-          <input type="number" id="fcy" value="900000" />
+      <div class="input-group">
+        <div class="field">
+          <label>Amount (USD)</label>
+          <input type="number" id="fcy" value="900000" placeholder="0.00" />
         </div>
-
-        <div>
-          <label>Rate</label>
-          <input type="number" id="rate" value="1477" />
+        <div class="field">
+          <label>Rate (NGN)</label>
+          <input type="number" id="rate" value="1477" placeholder="0.00" />
         </div>
-
-        <div>
+        <div class="field">
           <label>USD Settlement</label>
           <select id="usdSettle">
-            <option value="TOD">TOD</option>
-            <option value="TOM">TOM</option>
-            <option value="T2">T+2</option>
+            <option value="TOD">TOD (Value Today)</option>
+            <option value="TOM">TOM (Value Tomorrow)</option>
+            <option value="T2">T+2 (Spot)</option>
           </select>
         </div>
-
-        <div>
-          <label>Settlement Date</label>
+        <div class="field">
+          <label>USD Value Date</label>
           <input type="date" id="settleDate" />
         </div>
       </div>
 
-      <!-- ACCOUNT -->
-      <h3 id="accountTitle">NGN Receiving Account</h3>
-
-      <div class="grid">
-        <div>
-          <label>Select Account</label>
-          <select id="accountSelect"></select>
-        </div>
+      <div class="section-header">
+        <h3 id="accountTitle">Account Details</h3>
+        <button id="toggleAccountBtn">Show Details</button>
       </div>
 
-      <button id="toggleAccountBtn" class="secondary">
-        Show Account Details
+      <div class="field" style="margin-bottom: 20px">
+        <label>Select Profile</label>
+        <select id="accountSelect"></select>
+      </div>
+
+      <div id="accountFields" class="input-group hidden"></div>
+
+      <h3 style="margin-top: 24px">Trade Confirmation</h3>
+      <div class="summary-card">
+        <div id="summary" class="summary-content"></div>
+      </div>
+
+      <button class="btn-primary" onclick="copySummary()">
+        Copy Confirmation
       </button>
-      <div id="accountFields" class="grid hidden"></div>
-
-      <!-- SUMMARY -->
-      <h3>Trade Summary</h3>
-      <div id="summary" class="summary"></div>
-
-      <button onclick="copySummary()">Copy Summary</button>
     </div>
 
     <script>
@@ -159,16 +253,16 @@
 
       const accounts = {
         SELL: {
-          title: "NGN Account Details",
+          title: "NGN Receiving Account",
           list: {
             CEDE_ZENITH: {
-              "Account Name": "Cede Technologies Limited",
-              "Account Number": "1313149930",
+              Name: "Cede Technologies Limited",
+              Account: "1313149930",
               Bank: "Zenith Bank",
             },
             CEDE_PROVIDUS: {
-              "Account Name": "Cede Technologies Limited",
-              "Account Number": "9616773885",
+              Name: "Cede Technologies Limited",
+              Account: "9616773885",
               Bank: "Providus Bank",
             },
           },
@@ -177,47 +271,45 @@
           title: "USD Settlement Account",
           list: {
             CEDE_IFX: {
-              "Beneficiary Name": "Cede Technologies Inc",
+              Beneficiary: "Cede Technologies Inc",
               Bank: "IFX Payments",
-              "Account Number": "67146817",
+              Account: "67146817",
               "Sort Code": "23-22-90",
               IBAN: "GB77IFXS23229067146817",
-              "SWIFT/BIC": "IFXSGB2L",
-              Currency: "USD",
-              "Bank Address":
-                "33 Cavendish Square, London, W1G 0PW, United Kingdom",
+              SWIFT: "IFXSGB2L",
+              Address: "London, W1G 0PW, UK",
             },
           },
         },
       };
 
-      function formatNumber(num) {
-        return num.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+      function formatNGN(num) {
+        return num.toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
       }
 
-      function setDefaultDate() {
+      function setDates() {
         const d = new Date();
-        if (usdSettle.value === "TOM") d.setDate(d.getDate() + 1);
-        if (usdSettle.value === "T2") d.setDate(d.getDate() + 2);
-        settleDate.value = d.toISOString().split("T")[0];
+        // USD Leg Date
+        const usdDate = new Date();
+        if (usdSettle.value === "TOM") usdDate.setDate(usdDate.getDate() + 1);
+        if (usdSettle.value === "T2") usdDate.setDate(usdDate.getDate() + 2);
+        settleDate.value = usdDate.toISOString().split("T")[0];
+        updateSummary();
       }
 
       function loadAccounts() {
         const config = accounts[tradeType];
         accountTitle.textContent = config.title;
         accountSelect.innerHTML = "";
-        accountFields.innerHTML = "";
-        accountFields.classList.add("hidden");
-        toggleAccountBtn.textContent = "Show Account Details";
-
-        Object.keys(config.list).forEach((key, index) => {
+        Object.keys(config.list).forEach((key) => {
           const opt = document.createElement("option");
           opt.value = key;
-          opt.textContent = key.replaceAll("_", " ");
+          opt.textContent = key.replace(/_/g, " ");
           accountSelect.appendChild(opt);
-          if (index === 0) accountSelect.value = key;
         });
-
         renderAccountFields();
       }
 
@@ -225,16 +317,12 @@
         accountFields.innerHTML = "";
         const selected = accounts[tradeType].list[accountSelect.value];
         if (!selected) return;
-
         Object.entries(selected).forEach(([label, value]) => {
           const div = document.createElement("div");
-          div.innerHTML = `
-            <label>${label}</label>
-            <input type="text" value="${value}" readonly />
-          `;
+          div.className = "field";
+          div.innerHTML = `<label>${label}</label><input type="text" value="${value}" readonly />`;
           accountFields.appendChild(div);
         });
-
         updateSummary();
       }
 
@@ -242,33 +330,45 @@
         const fcyVal = Number(fcy.value || 0);
         const rateVal = Number(rate.value || 0);
         const lcy = fcyVal * rateVal;
-
         const isBuy = tradeType === "BUY";
-        const fcyLabel = isBuy ? "FCY Bought" : "FCY Sold";
-        const lcyLabel = isBuy ? "LCY Sold" : "LCY Bought";
+
+        const ngnDate = new Date().toDateString(); // Always Today
+        const usdDate = new Date(settleDate.value).toDateString();
+        const usdType = usdSettle.options[usdSettle.selectedIndex].text;
 
         const selected = accounts[tradeType].list[accountSelect.value];
-
         const accountText = selected
           ? Object.entries(selected)
               .map(([k, v]) => `${k}: ${v}`)
               .join("\n")
           : "";
 
-        summary.textContent = `${accounts[tradeType].title};
+        summary.textContent = `⚡ *FX TRADE CONFIRMATION*
+---------------------------
+${accounts[tradeType].title}:
 ${accountText}
 
-*Trade Summary*
-${fcyLabel}: $${fcyVal.toLocaleString()}
+📊 *Market Details*
+${isBuy ? "Bought" : "Sold"} USD: $${fcyVal.toLocaleString()}
 Rate: ${rateVal.toLocaleString()}
-${lcyLabel}: NGN${formatNumber(lcy)}
-Settlement Date: ${new Date(settleDate.value).toDateString()}
-USD Settlement: ${usdSettle.options[usdSettle.selectedIndex].text}`;
+${isBuy ? "Sold" : "Bought"} NGN: ₦${formatNGN(lcy)}
+
+📅 *Value Dates*
+NGN Value Date: ${ngnDate}
+USD Value Date: ${usdDate}`;
       }
 
       function copySummary() {
-        navigator.clipboard.writeText(summary.textContent);
-        alert("Trade summary copied");
+        navigator.clipboard.writeText(summary.textContent).then(() => {
+          const btn = document.querySelector(".btn-primary");
+          const originalText = btn.textContent;
+          btn.textContent = "✓ Copied to Clipboard";
+          btn.style.background = "#10B981";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = "#0052FF";
+          }, 2000);
+        });
       }
 
       document.querySelectorAll(".tab").forEach((tab) => {
@@ -279,33 +379,25 @@ USD Settlement: ${usdSettle.options[usdSettle.selectedIndex].text}`;
           tab.classList.add("active");
           tradeType = tab.dataset.type;
           loadAccounts();
-          setDefaultDate();
-          updateSummary();
+          setDates();
         });
       });
 
       toggleAccountBtn.addEventListener("click", () => {
-        accountFields.classList.toggle("hidden");
-        toggleAccountBtn.textContent = accountFields.classList.contains(
-          "hidden"
-        )
-          ? "Show Account Details"
-          : "Hide Account Details";
+        const isHidden = accountFields.classList.toggle("hidden");
+        toggleAccountBtn.textContent = isHidden
+          ? "Show Details"
+          : "Hide Details";
       });
 
       accountSelect.addEventListener("change", renderAccountFields);
-      usdSettle.addEventListener("change", () => {
-        setDefaultDate();
-        updateSummary();
-      });
+      usdSettle.addEventListener("change", setDates);
+      [fcy, rate, settleDate].forEach((el) =>
+        el.addEventListener("input", updateSummary)
+      );
 
-      document
-        .querySelectorAll("input")
-        .forEach((el) => el.addEventListener("input", updateSummary));
-
-      setDefaultDate();
+      setDates();
       loadAccounts();
-      updateSummary();
     </script>
   </body>
 </html>
