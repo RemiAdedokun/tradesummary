@@ -196,11 +196,11 @@
       <div class="input-group">
         <div class="field">
           <label>Amount (USD)</label>
-          <input type="number" id="fcy" value="900000" placeholder="0.00" />
+          <input type="text" id="fcy" value="900,000" placeholder="0.00" />
         </div>
         <div class="field">
           <label>Rate (NGN)</label>
-          <input type="number" id="rate" value="1477" placeholder="0.00" />
+          <input type="text" id="rate" value="1,477" placeholder="0.00" />
         </div>
         <div class="field">
           <label>USD Settlement</label>
@@ -241,8 +241,8 @@
     <script>
       let tradeType = "SELL";
 
-      const fcy = document.getElementById("fcy");
-      const rate = document.getElementById("rate");
+      const fcyInput = document.getElementById("fcy");
+      const rateInput = document.getElementById("rate");
       const usdSettle = document.getElementById("usdSettle");
       const settleDate = document.getElementById("settleDate");
       const accountSelect = document.getElementById("accountSelect");
@@ -283,16 +283,27 @@
         },
       };
 
-      function formatNGN(num) {
-        return num.toLocaleString("en-NG", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
+      // Helper to strip non-numeric characters for calculation
+      const cleanNum = (str) => parseFloat(str.replace(/,/g, "")) || 0;
+
+      // Helper to format as currency with thousand separators
+      function formatCurrency(num, decimals = 2) {
+        return num.toLocaleString("en-US", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
         });
       }
 
+      // Handle live formatting in input fields
+      function handleInputFormatting(e) {
+        let value = e.target.value.replace(/,/g, "");
+        if (!isNaN(value) && value !== "") {
+          e.target.value = parseFloat(value).toLocaleString("en-US");
+        }
+        updateSummary();
+      }
+
       function setDates() {
-        const d = new Date();
-        // USD Leg Date
         const usdDate = new Date();
         if (usdSettle.value === "TOM") usdDate.setDate(usdDate.getDate() + 1);
         if (usdSettle.value === "T2") usdDate.setDate(usdDate.getDate() + 2);
@@ -327,14 +338,13 @@
       }
 
       function updateSummary() {
-        const fcyVal = Number(fcy.value || 0);
-        const rateVal = Number(rate.value || 0);
+        const fcyVal = cleanNum(fcyInput.value);
+        const rateVal = cleanNum(rateInput.value);
         const lcy = fcyVal * rateVal;
         const isBuy = tradeType === "BUY";
 
-        const ngnDate = new Date().toDateString(); // Always Today
+        const ngnDate = new Date().toDateString();
         const usdDate = new Date(settleDate.value).toDateString();
-        const usdType = usdSettle.options[usdSettle.selectedIndex].text;
 
         const selected = accounts[tradeType].list[accountSelect.value];
         const accountText = selected
@@ -349,9 +359,9 @@ ${accounts[tradeType].title}:
 ${accountText}
 
 📊 *Market Details*
-${isBuy ? "Bought" : "Sold"} USD: $${fcyVal.toLocaleString()}
-Rate: ${rateVal.toLocaleString()}
-${isBuy ? "Sold" : "Bought"} NGN: ₦${formatNGN(lcy)}
+${isBuy ? "Bought" : "Sold"} USD: $${formatCurrency(fcyVal)}
+Rate: ${formatCurrency(rateVal, 2)}
+${isBuy ? "Sold" : "Bought"} NGN: ₦${formatCurrency(lcy)}
 
 📅 *Value Dates*
 NGN Value Date: ${ngnDate}
@@ -392,9 +402,10 @@ USD Value Date: ${usdDate}`;
 
       accountSelect.addEventListener("change", renderAccountFields);
       usdSettle.addEventListener("change", setDates);
-      [fcy, rate, settleDate].forEach((el) =>
-        el.addEventListener("input", updateSummary)
+      [fcyInput, rateInput].forEach((el) =>
+        el.addEventListener("input", handleInputFormatting)
       );
+      settleDate.addEventListener("input", updateSummary);
 
       setDates();
       loadAccounts();
