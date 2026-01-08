@@ -20,6 +20,7 @@
         --text-muted: #64748b;
         --border: #e2e8f0;
         --success: #10b981;
+        --whatsapp: #25d366;
       }
 
       * {
@@ -161,24 +162,46 @@
         line-height: 1.6;
       }
 
-      .btn-primary {
-        width: 100%;
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .btn {
         padding: 14px;
-        background: var(--primary);
-        color: white;
         border: none;
         border-radius: 10px;
         font-weight: 600;
-        font-size: 16px;
+        font-size: 15px;
         cursor: pointer;
-        margin-top: 16px;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: white;
+      }
+
+      .btn-primary {
+        background: var(--primary);
       }
 
       .btn-primary:hover {
         background: var(--primary-hover);
         transform: translateY(-1px);
       }
+
+      .btn-whatsapp {
+        background: var(--whatsapp);
+      }
+
+      .btn-whatsapp:hover {
+        background: #1eb956;
+        transform: translateY(-1px);
+      }
+
       .hidden {
         display: none;
       }
@@ -233,9 +256,14 @@
         <div id="summary" class="summary-content"></div>
       </div>
 
-      <button class="btn-primary" onclick="copySummary()">
-        Copy Confirmation
-      </button>
+      <div class="button-row">
+        <button class="btn btn-primary" onclick="copySummary()">
+          <span>Copy Text</span>
+        </button>
+        <button class="btn btn-whatsapp" onclick="shareWhatsApp()">
+          <span>Share WhatsApp</span>
+        </button>
+      </div>
     </div>
 
     <script>
@@ -279,14 +307,18 @@
               SWIFT: "IFXSGB2L",
               Address: "London, W1G 0PW, UK",
             },
+            CEDE_FIDELITY: {
+              Name: "Cede Technologies Ltd",
+              Account: "5240070157",
+              Bank: "Fidelity Bank",
+              Currency: "USD",
+            },
           },
         },
       };
 
-      // Helper to strip non-numeric characters for calculation
       const cleanNum = (str) => parseFloat(str.replace(/,/g, "")) || 0;
 
-      // Helper to format as currency with thousand separators
       function formatCurrency(num, decimals = 2) {
         return num.toLocaleString("en-US", {
           minimumFractionDigits: decimals,
@@ -294,7 +326,6 @@
         });
       }
 
-      // Handle live formatting in input fields
       function handleInputFormatting(e) {
         let value = e.target.value.replace(/,/g, "");
         if (!isNaN(value) && value !== "") {
@@ -349,19 +380,19 @@
         const selected = accounts[tradeType].list[accountSelect.value];
         const accountText = selected
           ? Object.entries(selected)
-              .map(([k, v]) => `${k}: ${v}`)
+              .map(([k, v]) => `*${k}:* ${v}`)
               .join("\n")
           : "";
 
-        summary.textContent = `⚡ *FX TRADE CONFIRMATION*
+        summary.textContent = `⚡ *TRADE CONFIRMATION*
 ---------------------------
-${accounts[tradeType].title}:
+*${accounts[tradeType].title}*
 ${accountText}
 
-📊 *Market Details*
-${isBuy ? "Bought" : "Sold"} USD: $${formatCurrency(fcyVal)}
-Rate: ${formatCurrency(rateVal, 2)}
-${isBuy ? "Sold" : "Bought"} NGN: ₦${formatCurrency(lcy)}
+📊 *Settlement Details*
+${isBuy ? "Bought" : "Sold"} USD: *$${formatCurrency(fcyVal)}*
+Rate: *${formatCurrency(rateVal, 2)}*
+${isBuy ? "Sold" : "Bought"} NGN: *₦${formatCurrency(lcy)}*
 
 📅 *Value Dates*
 NGN Value Date: ${ngnDate}
@@ -371,14 +402,19 @@ USD Value Date: ${usdDate}`;
       function copySummary() {
         navigator.clipboard.writeText(summary.textContent).then(() => {
           const btn = document.querySelector(".btn-primary");
-          const originalText = btn.textContent;
-          btn.textContent = "✓ Copied to Clipboard";
+          const originalText = btn.innerHTML;
+          btn.innerHTML = "<span>✓ Copied</span>";
           btn.style.background = "#10B981";
           setTimeout(() => {
-            btn.textContent = originalText;
+            btn.innerHTML = originalText;
             btn.style.background = "#0052FF";
           }, 2000);
         });
+      }
+
+      function shareWhatsApp() {
+        const text = encodeURIComponent(summary.textContent);
+        window.open(`https://wa.me/?text=${text}`, "_blank");
       }
 
       document.querySelectorAll(".tab").forEach((tab) => {
