@@ -318,6 +318,12 @@
               Bank: "Fidelity Bank",
               Currency: "USD",
             },
+            CEDE_ACCESS: {
+              Name: "Cede Technologies Ltd",
+              Account: "1870004008",
+              Bank: "Access Bank Plc",
+              Currency: "USD",
+            },
           },
         },
       };
@@ -391,17 +397,21 @@
 
         summary.textContent = `⚡ *TRADE CONFIRMATION*
 ---------------------------
-*${accounts[tradeType].title}*
-${accountText}
+*Trade Date: ${new Date().toDateString()}*
 
-📊 *Settlement Details*
+📊 *Trade Details*
 ${isBuy ? "Bought" : "Sold"} USD: *$${formatCurrency(fcyVal)}*
 Rate: *${formatCurrency(rateVal, 2)}*
 ${isBuy ? "Sold" : "Bought"} NGN: *₦${formatCurrency(lcy)}*
 
 📅 *Value Dates*
 NGN Value Date: ${ngnDate}
-USD Value Date: ${usdDate}`;
+USD Value Date: ${usdDate}
+
+*Settlement Details*
+*${accounts[tradeType].title}*
+${accountText}
+`;
       }
 
       function copySummary() {
